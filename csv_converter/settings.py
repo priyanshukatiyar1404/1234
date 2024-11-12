@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['csv-convertor.onrender.com']
 
 
 # Application definition
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'converter',
     'cloudinary',
     'cloudinary_storage',
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +137,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.getenv('API_KEY'),
     'API_SECRET': os.getenv('API_SECRET')
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS= True
+CORS_ALLOW_CREDENTIALS = False
