@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "aws_region": "us-east-2",
+        "django_settings": "csv_converter.settings",
+        "profile_name": "default",
+        "project_name": "csv-convertor",
+        "runtime": "python3.10",
+        "s3_bucket": "zappa-wv4lbfnau"
+    }
+}

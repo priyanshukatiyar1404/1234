@@ -8,16 +8,21 @@ from django.http import JsonResponse
 from .serializers import InputSerializer
 import cloudinary.uploader
 from rest_framework import status
-
+from . models import CSVconvert
 import cloudinary
 import cloudinary.api
 from django.conf import settings
+from user.utils import verify_access_token
+import uuid
+from datetime import datetime
 
 cloudinary.config(
   cloud_name = settings.CLOUDINARY_STORAGE['CLOUD_NAME'],
   api_key = settings.CLOUDINARY_STORAGE['API_KEY'],
   api_secret = settings.CLOUDINARY_STORAGE['API_SECRET']
 )
+import boto3
+dynamo_db_client = boto3.resource('dynamodb', region_name='us-east-2')
 
 
 
@@ -26,8 +31,13 @@ class CSVConvertAPIView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
+            if request.headers.get('Authorization') is None:
+                return JsonResponse({'error': 'Authorization header is required'}, status=status.HTTP_400_BAD_REQUEST) 
+            if verify_access_token(request.headers['Authorization'].split(' ')[1]) == False:
+                return JsonResponse({'error': 'Invalid access token'}, status=status.HTTP_401_UNAUTHORIZED)
             input_file = request.data.get('input')
 
+            input_url=cloudinary.uploader.upload(input_file, resource_type='raw', folder='csv_converter', format='xlsx')['secure_url']
             # Read the labor drive report
             labor_drive_report = pd.read_excel(input_file)
 
@@ -83,8 +93,18 @@ class CSVConvertAPIView(CreateAPIView):
             
             # Upload the CSV file to Cloudinary
             result = cloudinary.uploader.upload(output, resource_type='raw', folder='csv_converter', format='csv')
-            file_url = result['url']
+            file_url = result['secure_url']
+
+            item={
+                'id':str(uuid.uuid4()),
+                'input_url':input_url,
+                'output_url':file_url,
+                'created_at': str(datetime.now()),
+                'updated_at': str(datetime.now())
+            }
             
+            table='CSV_converter_files'
+            dynamo_db_client.Table(table).put_item(Item=item)
             return JsonResponse({'file_url': file_url}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

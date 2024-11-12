@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['csv-convertor.onrender.com']
+ALLOWED_HOSTS = ['csv-convertor.onrender.com', 'localhost','n4om1187nj.execute-api.us-east-2.amazonaws.com']
 
 
 # Application definition
@@ -44,7 +45,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -142,3 +144,20 @@ CLOUDINARY_STORAGE = {
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS= True
 CORS_ALLOW_CREDENTIALS = False
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated',
+#     ),
+# }
+
+SIMPLE_JWT = {
+  'AUTH_HEADER_TYPES': ('Bearer',),
+  'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),
+  'REFRESH_TOKEN_LIFETIME': timedelta(days = 7),
+  'BLACKLIST_AFTER_ROTATION': True,
+  'ROTATE_REFRESH_TOKENS': True,
+}
